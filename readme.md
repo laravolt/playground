@@ -218,6 +218,71 @@ public function rules()
 >
 > `php artisan make:model Models/ContactForm -m`
 
+### Menyimpan via Query Builder
+
+```php
+use Illuminate\Support\Facades\DB;
+
+// Define kolom satu per satu, bayangkan kalau kolomnya ada belasan atau puluhan 🤦
+DB::table('contact_forms')->insert([
+     'name' => $request->name,
+     'email' => $request->email,
+     'message' => $request->message,
+]);
+
+// Cara lebih ringkas
+DB::table('contact_forms')->insert($request->only(['name', 'email', 'message']));
+DB::table('contact_forms')->insert($request->except(['_token']));
+DB::table('contact_forms')->insert($request->validated()); //⭐
+```
+
+
+
+### Menyimpan via Model Instance
+
+```php
+use App\Models\ContactForm;
+
+// Cara paling lumrah dan paling OOP, tapi kasusnya sama seperti di atas, kita harus mendefinisikan mapping kolom satu per satu.
+$contactForm = new ContactForm();
+$contactForm->name = $request->name;
+$contactForm->email = $request->email;
+$contactForm->message = $request->message;
+$contactForm->save();
+```
+
+
+
+### Menyimpan via Mass Assigment ⭐
+
+```php
+use App\Models\ContactForm;
+
+// Cara paling direkomendasikan, ringkas namun tetap "Eloquent Ways"
+ContactForm::create($request->validated());
+```
+
+Cara di atas bisa dilakukan hanya jika kita mendefinisikan $guarded atau $fillable di model `ContactForm`.
+
+```php
+class ContactForm extends Model
+{
+    // protected $fillable = ['name', 'email', 'message'];
+
+    protected $guarded = [];
+}
+```
+
+`$fillable` itu *whitelist*, hanya atribut yang disebutkan disitu yang bisa dilakukan *mass assignment*. Sedangkan `$guarded` bersifat *blacklist*, atribut yang disebutkan disitu tidak boleh dilakukan *mass assignment*.
+
+
+
+> #### Laravolt Best Practice
+>
+> Kosongkan `$guarded` (set sebagai *empty array* seperti contoh di atas), tapi pastikan selalu memanggil `$request->validated()` atau `$request->only()` atau  `$request->except()` **dan bukan**  `$request->all()` di *Controller*. Ini akan membuat *Controller* lebih ringkas dan mudah dibaca.
+
+Referensi: https://medium.com/@sager.davidson/fillable-vs-guarded-hint-they-both-lose-f278bc81dedf
+
 # Misi 3: Mengirim Email Notifikasi
 
 
