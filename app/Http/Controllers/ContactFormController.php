@@ -50,5 +50,7 @@ class ContactFormController extends Controller
 
         // 3. Mass Assignment
         ContactForm::create($request->validated());
+
+        return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak lanjut.');
     }
 }

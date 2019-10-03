@@ -283,6 +283,16 @@ class ContactForm extends Model
 
 Referensi: https://medium.com/@sager.davidson/fillable-vs-guarded-hint-they-both-lose-f278bc81dedf
 
+
+
+### Menampilkan Pesan Sukses
+
+```php
+return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak lanjut.');
+```
+
+
+
 # Misi 3: Mengirim Email Notifikasi
 
 
