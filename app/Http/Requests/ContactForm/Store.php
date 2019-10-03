@@ -25,8 +25,8 @@ class Store extends FormRequest
     {
         return [
             'name' => ['required'],
-            'email' => ['required'],
-            'message' => ['required'],
+            'email' => ['required', 'email'],
+            'message' => ['required', 'min:20'],
         ];
     }
 }
