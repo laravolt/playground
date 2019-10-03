@@ -56,6 +56,63 @@ Memanfaatkan semantic-form untuk memudahkan pembuatan form HTML.
 @stop
 ```
 
+## Validasi Form
+
+### Generate `FormRequest`
+
+`php artisan make:request ContactForm/Store`
+
+### Modifikasi Isinya
+
+```php
+<?php
+
+namespace App\Http\Requests\ContactForm;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class Store extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            'name' => ['required'],
+            'email' => ['required'],
+            'message' => ['required'],
+        ];
+    }
+}
+
+```
+
+
+
+### Pasangkan ke `ContactFormController@store`
+
+```php
+public function store(\App\Http\Requests\ContactForm\Store $request)
+{
+    //
+}
+```
+
+
+
 ## Misi
 
 1. Tambahkan validasi server-side

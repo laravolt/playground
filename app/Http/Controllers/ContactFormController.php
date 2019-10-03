@@ -11,7 +11,7 @@ class ContactFormController extends Controller
         return view('contact-form.create');
     }
 
-    public function store(Request $request)
+    public function store(\App\Http\Requests\ContactForm\Store $request)
     {
         //
     }
