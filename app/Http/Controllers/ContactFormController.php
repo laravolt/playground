@@ -42,10 +42,13 @@ class ContactFormController extends Controller
         // DB::table('contact_forms')->insert($request->validated());
 
         // 2. Model Instance
-        $contactForm = new ContactForm();
-        $contactForm->name = $request->name;
-        $contactForm->email = $request->email;
-        $contactForm->message = $request->message;
-        $contactForm->save();
+        // $contactForm = new ContactForm();
+        // $contactForm->name = $request->name;
+        // $contactForm->email = $request->email;
+        // $contactForm->message = $request->message;
+        // $contactForm->save();
+
+        // 3. Mass Assignment
+        ContactForm::create($request->validated());
     }
 }
