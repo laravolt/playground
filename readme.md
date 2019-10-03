@@ -56,3 +56,25 @@ Memanfaatkan semantic-form untuk memudahkan pembuatan form HTML.
 @stop
 ```
 
+## Misi
+
+1. Tambahkan validasi server-side
+    - Semua field wajib diisi
+    - Format email harus valid
+    - Panjang pesan minimal 20 karakter
+    - Nama lengkap **minimal 3 suku kata**, jika kurang dari 3 suku kata, menampilkan pesan "Nama harus mengandung 3 suku kata atau lebih"
+2. Menyimpan ke database
+    -  Membuat model `ContactForm`
+    -  Menyimpan via *query builder*
+    -  Menyimpan via *model instance*
+    -  Menyiimpan via *mass assignment*
+        -  $fillable
+        -  $guarded
+    -  Menampilkan pesan sukses "Pesan telah diterima dan menunggu tindak lanjut"
+    -  Kembali ke halaman `contact-form`
+
+3. Notifikasi email ke pengirim
+    - Membuat `Event`
+    - Membuat `Listener`
+    - Mendaftarkan `Event` dan `Listener`
+    - Membuat `Notification`
