@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ContactFormSubmitted;
 use App\Models\ContactForm;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +50,9 @@ class ContactFormController extends Controller
         // $contactForm->save();
 
         // 3. Mass Assignment
-        ContactForm::create($request->validated());
+        $contactForm = ContactForm::create($request->validated());
+
+        event(new ContactFormSubmitted($contactForm));
 
         return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak lanjut.');
     }
