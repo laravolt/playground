@@ -13,6 +13,8 @@ class MinimumWords implements Rule
 
     /**
      * Create a new rule instance.
+     *
+     * @param mixed $limit
      */
     public function __construct($limit = 3)
     {
