@@ -295,7 +295,17 @@ return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak
 
 # Misi 3: Mengirim Email Notifikasi
 
+## Menyiapkan Event + Listener
 
+### Enable Event Discovery
+
+### Generate Event
+
+### Generate Listener
+
+### Dispatch Event
+
+## Menyiapkan Email Notifikasi
 
 ## Misi
 
