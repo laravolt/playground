@@ -2,6 +2,8 @@
 
 
 
+# Misi 1: Form & Validasi
+
 ## 1. Mendefinisikan Route
 
 ```php
@@ -200,6 +202,26 @@ public function rules()
 
 
 
+# Misi 2: Menyimpan ke Database
+
+## Membuat Model
+
+`php artisan make:model Models/ContactForm`
+
+## Membuat Migration Script
+
+`php artisan make:migration create_contact_forms_table`
+
+
+
+> Model dan migration script bisa digenerate sekaligus dengan flag `-m`:
+>
+> `php artisan make:model Models/ContactForm -m`
+
+# Misi 3: Mengirim Email Notifikasi
+
+
+
 ## Misi
 
 1. Tambahkan validasi server-side
@@ -208,6 +230,7 @@ public function rules()
     - [ ] Panjang pesan minimal 20 karakter
     - [ ] Nama lengkap **minimal 3 suku kata**, jika kurang dari 3 suku kata, menampilkan pesan "Nama harus mengandung 3 suku kata atau lebih"
 2. Menyimpan ke database
+    - [ ] Membuat migration scripts
     - [ ] Membuat model `\App\Models\ContactForm`
     - [ ] Menyimpan via *query builder*
     - [ ] Menyimpan via *model instance*
