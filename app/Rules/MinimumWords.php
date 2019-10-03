@@ -7,10 +7,16 @@ use Illuminate\Contracts\Validation\Rule;
 class MinimumWords implements Rule
 {
     /**
+     * @var int
+     */
+    protected $limit;
+
+    /**
      * Create a new rule instance.
      */
-    public function __construct()
+    public function __construct($limit = 3)
     {
+        $this->limit = $limit;
     }
 
     /**
@@ -23,7 +29,7 @@ class MinimumWords implements Rule
      */
     public function passes($attribute, $value)
     {
-        return str_word_count($value) >= 3;
+        return str_word_count($value) >= $this->limit;
     }
 
     /**
@@ -33,6 +39,6 @@ class MinimumWords implements Rule
      */
     public function message()
     {
-        return ':attribute harus mengandung 3 suku kata atau lebih';
+        return ":attribute harus mengandung {$this->limit} suku kata atau lebih";
     }
 }

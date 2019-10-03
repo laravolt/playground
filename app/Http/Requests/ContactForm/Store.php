@@ -25,7 +25,7 @@ class Store extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', new MinimumWords()],
+            'name' => ['required', new MinimumWords(2)],
             'email' => ['required', 'email'],
             'message' => ['required', 'min:20'],
         ];
