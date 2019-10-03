@@ -318,5 +318,5 @@ return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak
 3. Notifikasi email ke pengirim
     - [ ] Membuat `Event`
     - [ ] Membuat `Listener`
-    - [ ] Mendaftarkan `Event` dan `Listener`
+    - [ ] Mendaftarkan `Event` dan `Listener` di `EventServiceProvider`
     - [ ] Membuat `Notification`
