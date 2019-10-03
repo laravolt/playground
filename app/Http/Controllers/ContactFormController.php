@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactForm;
 use Illuminate\Support\Facades\DB;
 
 class ContactFormController extends Controller
@@ -39,5 +40,12 @@ class ContactFormController extends Controller
         //             'message' => [],
         //         ];
         // DB::table('contact_forms')->insert($request->validated());
+
+        // 2. Model Instance
+        $contactForm = new ContactForm();
+        $contactForm->name = $request->name;
+        $contactForm->email = $request->email;
+        $contactForm->message = $request->message;
+        $contactForm->save();
     }
 }
