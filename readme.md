@@ -1,18 +1,23 @@
 # Contact Form
 
-## Mendefinisikan Route
+
+
+## 1. Mendefinisikan Route
+
 ```php
 Route::get('contact-form', 'ContactFormController@create')->name('contact-form.create');
 Route::post('contact-form', 'ContactFormController@store')->name('contact-form.store');
 ```
 
-## Membuat Controller
 
-### Jalankan Generator
 
-`php artisan make:controller ContactFormController`
+## 2. Membuat Controller
 
-### Tambahkan Method `create` dan `store`
+### 2.1. Jalankan Generator
+
+Jalankan perintah `php artisan make:controller ContactFormController`
+
+### 2.2. Tambahkan Method `create` dan `store`
 
 ```php
 public function create()
@@ -28,7 +33,7 @@ public function store(Request $request)
 
 
 
-## Tambahkan View
+## 3. Tambahkan View
 
 Membuat skeleton view di `resources/views/contact-form/create.blade.php`.
 
@@ -39,7 +44,9 @@ Membuat skeleton view di `resources/views/contact-form/create.blade.php`.
 @stop
 ```
 
-## Membuat Form
+
+
+## 4. Membuat Form
 
 Memanfaatkan semantic-form untuk memudahkan pembuatan form HTML.
 
@@ -56,13 +63,19 @@ Memanfaatkan semantic-form untuk memudahkan pembuatan form HTML.
 @stop
 ```
 
-## Validasi Form
 
-### Generate `FormRequest`
 
-`php artisan make:request ContactForm/Store`
+## 5. Validasi Form
 
-### Modifikasi Isinya
+
+
+### 5.1. Generate `FormRequest`
+
+Jalankan perintah `php artisan make:request ContactForm/Store`
+
+
+
+### 5.2. Modifikasi `rules()` dan `authorize()` 
 
 ```php
 <?php
@@ -102,7 +115,7 @@ class Store extends FormRequest
 
 
 
-### Pasangkan ke `ContactFormController@store`
+### 5.3. Pasangkan ke `ContactFormController@store`
 
 ```php
 public function store(\App\Http\Requests\ContactForm\Store $request)
@@ -113,25 +126,99 @@ public function store(\App\Http\Requests\ContactForm\Store $request)
 
 
 
+### 5.4. Membuat Custom Validation Rule
+
+Jalankan perintah `php artisan make:rule MinimumWords`
+
+
+
+### 5.5. Implementasi Rule
+
+```php
+<?php
+
+namespace App\Rules;
+
+use Illuminate\Contracts\Validation\Rule;
+
+class MinimumWords implements Rule
+{
+    /**
+     * @var int
+     */
+    protected $limit;
+
+    /**
+     * Create a new rule instance.
+     *
+     * @param mixed $limit
+     */
+    public function __construct($limit = 3)
+    {
+        $this->limit = $limit;
+    }
+
+    /**
+     * Determine if the validation rule passes.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    public function passes($attribute, $value)
+    {
+        return str_word_count($value) >= $this->limit;
+    }
+
+    /**
+     * Get the validation error message.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return ":attribute harus mengandung {$this->limit} suku kata atau lebih";
+    }
+}
+```
+
+
+
+### 5.6. Daftarkan Custom Rule Ke FormRequest
+
+```php
+public function rules()
+{
+    return [
+        'name' => ['required', new \App\Rules\MinimumWords(2)],
+        'email' => ['required', 'email'],
+        'message' => ['required', 'min:20'],
+    ];
+}
+```
+
+
+
 ## Misi
 
 1. Tambahkan validasi server-side
-    - Semua field wajib diisi
-    - Format email harus valid
-    - Panjang pesan minimal 20 karakter
-    - Nama lengkap **minimal 3 suku kata**, jika kurang dari 3 suku kata, menampilkan pesan "Nama harus mengandung 3 suku kata atau lebih"
+    - [ ] Semua field wajib diisi
+    - [ ] Format email harus valid
+    - [ ] Panjang pesan minimal 20 karakter
+    - [ ] Nama lengkap **minimal 3 suku kata**, jika kurang dari 3 suku kata, menampilkan pesan "Nama harus mengandung 3 suku kata atau lebih"
 2. Menyimpan ke database
-    -  Membuat model `ContactForm`
-    -  Menyimpan via *query builder*
-    -  Menyimpan via *model instance*
-    -  Menyiimpan via *mass assignment*
+    - [ ] Membuat model `\App\Models\ContactForm`
+    - [ ] Menyimpan via *query builder*
+    - [ ] Menyimpan via *model instance*
+    - [ ] Menyimpan via *mass assignment*
         -  $fillable
         -  $guarded
-    -  Menampilkan pesan sukses "Pesan telah diterima dan menunggu tindak lanjut"
-    -  Kembali ke halaman `contact-form`
+    - [ ] Menampilkan pesan sukses "Pesan telah diterima dan menunggu tindak lanjut"
+    - [ ] Kembali ke halaman `contact-form`
 
 3. Notifikasi email ke pengirim
-    - Membuat `Event`
-    - Membuat `Listener`
-    - Mendaftarkan `Event` dan `Listener`
-    - Membuat `Notification`
+    - [ ] Membuat `Event`
+    - [ ] Membuat `Listener`
+    - [ ] Mendaftarkan `Event` dan `Listener`
+    - [ ] Membuat `Notification`
