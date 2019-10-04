@@ -204,11 +204,11 @@ public function rules()
 
 # Misi 2: Menyimpan ke Database
 
-## Membuat Model
+## 1. Membuat Model
 
 `php artisan make:model Models/ContactForm`
 
-## Membuat Migration Script
+## 2. Membuat Migration Script
 
 `php artisan make:migration create_contact_forms_table`
 
@@ -218,7 +218,9 @@ public function rules()
 >
 > `php artisan make:model Models/ContactForm -m`
 
-### Menyimpan via Query Builder
+## 3. Menyimpan Data
+
+### 3.1. Menyimpan via Query Builder
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -238,7 +240,7 @@ DB::table('contact_forms')->insert($request->validated()); //⭐
 
 
 
-### Menyimpan via Model Instance
+### 3.2. Menyimpan via Model Instance
 
 ```php
 use App\Models\ContactForm;
@@ -253,7 +255,7 @@ $contactForm->save();
 
 
 
-### Menyimpan via Mass Assigment ⭐
+### 3.3. Menyimpan via Mass Assigment ⭐
 
 ```php
 use App\Models\ContactForm;
@@ -262,7 +264,7 @@ use App\Models\ContactForm;
 ContactForm::create($request->validated());
 ```
 
-Cara di atas bisa dilakukan hanya jika kita mendefinisikan $guarded atau $fillable di model `ContactForm`.
+Cara di atas bisa dilakukan hanya jika kita mendefinisikan `$guarded` atau `$fillable` di model `ContactForm`.
 
 ```php
 class ContactForm extends Model
@@ -285,48 +287,299 @@ Referensi: https://medium.com/@sager.davidson/fillable-vs-guarded-hint-they-both
 
 
 
-### Menampilkan Pesan Sukses
+## 4. Menampilkan Pesan Sukses
 
 ```php
 return redirect()->back()->withSuccess('Pesan telah diterima dan menunggu tindak lanjut.');
 ```
 
+Selain `withSuccess()`, Laravolt juga secara otomatis mengenali `withInfo()`, `withWarning()`, dan `withError()`.
+
 
 
 # Misi 3: Mengirim Email Notifikasi
 
-## Menyiapkan Event + Listener
+## 1. Menyiapkan Event + Listener
 
-### Enable Event Discovery
 
-### Generate Event
 
-### Generate Listener
+### 1.1. Dispatch Event
 
-### Dispatch Event
+Modifikas kelas `ContactFormController` menjadi seperti berikut:
 
-## Menyiapkan Email Notifikasi
+```php
+// Simpan model yang disimpan ke database dalam sebuah variable
+$contactForm = ContactForm::create($request->validated());
 
-## Misi
+// Dispatch event. Tugas event hanya mengabarkan dan menyediakan data (variable) yang sekiranya berguna bagi kelas lain yang nanti akan memprosesnya.
+event(new \App\Events\ContactFormSubmitted($contactForm));
+```
 
-1. Tambahkan validasi server-side
-    - [ ] Semua field wajib diisi
-    - [ ] Format email harus valid
-    - [ ] Panjang pesan minimal 20 karakter
-    - [ ] Nama lengkap **minimal 3 suku kata**, jika kurang dari 3 suku kata, menampilkan pesan "Nama harus mengandung 3 suku kata atau lebih"
-2. Menyimpan ke database
-    - [ ] Membuat migration scripts
-    - [ ] Membuat model `\App\Models\ContactForm`
-    - [ ] Menyimpan via *query builder*
-    - [ ] Menyimpan via *model instance*
-    - [ ] Menyimpan via *mass assignment*
-        -  $fillable
-        -  $guarded
-    - [ ] Menampilkan pesan sukses "Pesan telah diterima dan menunggu tindak lanjut"
-    - [ ] Kembali ke halaman `contact-form`
+Sampai disini kita bisa mencoba mensubmit lagi contact form, tapi pasti akan menemui error karena kelas `\App\Events\ContactFormSubmitted` belum dibuat.
 
-3. Notifikasi email ke pengirim
-    - [ ] Membuat `Event`
-    - [ ] Membuat `Listener`
-    - [ ] Mendaftarkan `Event` dan `Listener` di `EventServiceProvider`
-    - [ ] Membuat `Notification`
+
+
+### 1.2. Generate Event
+
+Selanjutnya kita bisa membuat kelas event baru dengan nama `ContactFormSubmitted` memanfaatkan artisan CLI:
+
+```bash
+php artisan make:event ContactFormSubmitted
+```
+
+Sesuaikan isinya sesuai kebutuhan. Pada umumnya kelas `Event` tidak perlu mengandung *logic* sama sekali. Kelas ini hanya bertugas sebagai **kurir** yang menerima *variable* untuk kemudian diproses oleh kelas lain yang menjadi *listener*-nya.
+
+```php
+<?php
+
+namespace App\Events;
+
+use App\Models\ContactForm;
+
+class ContactFormSubmitted
+{
+    public $contactForm;
+
+    public function __construct(ContactForm $contactForm)
+    {
+        $this->contactForm = $contactForm;
+    }
+}
+
+```
+
+
+
+### 1.3. Generate Listener
+
+```bash
+pa make:listener SendContactFormNotification -e ContactFormSubmitted
+```
+
+Perhatikan flag `-e` pada perintah di atas. Fungsinya adalah sebagay `type-hinted` pada kelas Listener agar Laravel secara otomatis bisa mengenali bahwa listener `SendContactFormNotification` ini akan dieksekusi setiap kali ada event `ContactFormSubmitted`.
+
+Perintah di atas akan menghasilkan skeleton kelas sebagai berikut:
+
+```php
+<?php
+
+namespace App\Listeners;
+
+use App\Events\ContactFormSubmitted;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+class SendContactFormNotification
+{
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Handle the event.
+     *
+     * @param ContactFormSubmitted $event
+     * @return void
+     */
+    public function handle(ContactFormSubmitted $event)
+    {
+    }
+}
+```
+
+Silakan tambahkan method `dd($event->contactForm)` di dalam method `handle` dan coba submit form sekali lagi. Cek apakah listener dieksekusi.
+
+### 1.4. Mendaftarkan Event dan Listenernya
+
+#### 1.4.1. Via EventServiceProvider
+
+Buka file `App\Providers\EventServiceProvider` dan sesuaikan bagian `$listen`:
+
+```php
+protected $listen = [
+    \App\Events\ContactFormSubmitted::class => [
+        \App\Listeners\SendContactFormNotification::class,
+        "App\Listeners\AnotherListener",
+    ],
+];
+```
+
+Satu event bisa memiliki banyak banyak listener. Hal ini memungkinkan kita untuk menambah fungsionalitas sistem tanpa perlu memodifikasi *core* aplikasi.
+
+Referensi: https://laravel.com/docs/master/events#registering-events-and-listeners
+
+#### 1.4.2. Via Event Discovery
+
+Sejak Laravel 5.8.9, kita tidak perlu mendaftarkan pasangan event dan listenernya secara manual. Laravel secara otomatis akan mendeteksi berdasar *type-hinted* di parameter method. Untuk menggunakan fitur ini, kita harus mengaktifkan dulu *Event Discovery* dengan cara meng-*override* method di `EventServiceProvider`:
+
+```php
+public function shouldDiscoverEvents()
+{
+    return true;
+}
+```
+
+Buka kembali listener `SendContactFormNotification` yang sudah dibuat sebelumnya:
+
+```php
+public function handle(ContactFormSubmitted $event)
+{
+}
+```
+
+Pada method `handle` ini kita bisa melihat bahwa ada *type-hint* yang merefer ke kelas `App\Events\ContactFormSubmitted`. Ketika *Event Discovery* di-enable, maka listener akan otomatis dieksekusi ketika ada event `ContactFormSubmitted`.
+
+Referensi: https://laravel.com/docs/master/events#event-discovery
+
+### 
+
+## 2. Menyiapkan Email Notifikasi
+
+### 2.1. Generate Notification
+
+Jalankan kembali Artisan CLI:
+
+```bash
+php artisan make:notification ContactFormSubmitted
+```
+
+Sebuah file baru akan digenerate di folder `app\Notifications`. 
+
+### 2.2. Siapkan Konten Email
+
+Ada 2 method yang perlu dimodifikasi, yaitu bagian `constructor` dan `toMail`:
+
+```php
+<?php
+
+namespace App\Notifications;
+
+use App\Models\ContactForm;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class ContactFormSubmitted extends Notification
+{
+    use Queueable;
+
+    /**
+     * @var ContactForm
+     */
+    protected $contactForm;
+
+    /**
+     * Create a new notification instance.
+     *
+     * @return void
+     */
+    public function __construct(ContactForm $contactForm)
+    {
+        //
+        $this->contactForm = $contactForm;
+    }
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @param mixed $notifiable
+     * @return array
+     */
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Pesan baru dari contact form')
+            ->greeting('Ada pesan baru')
+            ->line('Nama: '.$this->contactForm->name)
+            ->line('Email: '.$this->contactForm->email)
+            ->line('Pesan: '.$this->contactForm->message)
+            ->line('Silakan ditindaklanjuti!');
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
+     * @return array
+     */
+    public function toArray($notifiable)
+    {
+        return [
+            //
+        ];
+    }
+}
+```
+
+Referensi: https://laravel.com/docs/master/notifications#mail-notifications
+
+
+
+### 2.3. Menyiapkan SMTP Untuk Simulasi Email
+
+Untuk simulasi pengiriman menggunakan SMTP, silakan ikuti tutorial di https://www.malasngoding.com/kirim-email-dengan-laravel/.
+
+
+
+### 2.4. Mengetes Kelas Notification
+
+Untuk mengetes kelas Notification, kita bisa memanfaatkan [tinker](https://laravel.com/docs/master/artisan#tinker) ataupun [web tinker](https://github.com/spatie/laravel-web-tinker). FYI, repo `laravolt/playground` sudah terpasang web tinker. Untuk mengaksesnya bisa mengetikkan url `/tinker` di browser.
+
+Selanjutnya, yang dibutuhkan untuk mengirim notifikasi hanya sebuah object `App\User` dan object lain sesuai kebutuhan `constructor` dari kelas Notification. Menggunakan contoh di atas, maka kita membutuhkan juga sebuah object `\App\Models\ContactForm`. Mari kita simulasikan.
+
+```php
+// Kita anggap user pertama adalah admin
+$admin = \App\User::first(); 
+
+// Ambil record pertama contact form
+$contactForm = \App\Models\ContactForm::find(1); 
+
+// Mengirim notifikasi
+$admin->notify(new \App\Notifications\ContactFormSubmitted($contactForm));
+```
+
+Ada beberapa cara untuk mengirim notifikasi ke user tertentu. Contoh di atas menggunakan `Notifiable` trait yang sudah dimiliki oleh kelas `User` sehingga kita tinggal memanggil method `notify()`. Cara lainnya bisa dibaca mandiri pada link di bawah.	
+
+Referensi: https://laravel.com/docs/master/notifications#using-the-notifiable-trait
+
+
+
+## 3. Mengirim Notifikasi Ke Admin
+
+Sejauh ini kita sudah membuat:
+
+1. Event yang ditrigger ketika submit contact form.
+2. Listener yang akan dieksekusi ketika ada event submit contact form
+3. Dan sebuah kelas Notification untuk mengirim email
+
+Langkah terakhir yang diperlukan adalah memindahkan eksekusi pengiriman notifikasi email ke dalam fungsi `handle` dari listener yang sudah kita buat.
+
+```php
+public function handle(ContactFormSubmitted $event)
+{
+    $admin = User::first();
+    $admin->notify(new \App\Notifications\ContactFormSubmitted($event->contactForm));
+}
+```
+
+
+
+That's All. Silakan dicoba kembali submit form melalui halaman web dan cek apakah ada email masuk ke mailtrap.
