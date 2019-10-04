@@ -22,8 +22,7 @@
         "laravolt/semantic-form": "^2.6",
         "laravolt/suitable": "^3.5",
         "laravolt/thunderclap": "~0.15",
-        "laravolt/ui": "~0.14",
-        "spatie/laravel-medialibrary": "^7.0.0"
+        "laravolt/ui": "~0.14"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
