@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ContactForm\Store;
 use Illuminate\Http\Request;
 
 class ContactFormController extends Controller
@@ -11,7 +12,7 @@ class ContactFormController extends Controller
         return view('contact-form.create');
     }
 
-    public function store(Request $request)
+    public function store(Store $request)
     {
         //
     }
