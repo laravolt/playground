@@ -2322,16 +2322,16 @@
         },
         {
             "name": "laravolt/ui",
-            "version": "0.14.0",
+            "version": "0.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/ui.git",
-                "reference": "945dbd50ac936e440251763a8065a4f3472a5cb9"
+                "reference": "d840cbac6ca7c927383427213c278439608ebbd3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/ui/zipball/945dbd50ac936e440251763a8065a4f3472a5cb9",
-                "reference": "945dbd50ac936e440251763a8065a4f3472a5cb9",
+                "url": "https://api.github.com/repos/laravolt/ui/zipball/d840cbac6ca7c927383427213c278439608ebbd3",
+                "reference": "d840cbac6ca7c927383427213c278439608ebbd3",
                 "shasum": ""
             },
             "require": {
@@ -2379,7 +2379,7 @@
                 "template",
                 "ui"
             ],
-            "time": "2019-09-27T02:47:17+00:00"
+            "time": "2019-10-04T04:18:38+00:00"
         },
         {
             "name": "lavary/laravel-menu",
