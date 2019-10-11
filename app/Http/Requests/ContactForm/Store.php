@@ -28,6 +28,7 @@ class Store extends FormRequest
         return [
             'name' => ['required', new MinimumWords(2)],
             'email' => ['required', 'email', new ValidateEmailAddress()],
+            'category' => ['required'],
             'message' => ['required', 'min:20'],
         ];
     }

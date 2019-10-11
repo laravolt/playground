@@ -4,6 +4,7 @@
     {!! form()->post(route('contact-form.create')) !!}
     {!! form()->text('name')->label('Nama Lengkap') !!}
     {!! form()->email('email')->label('Alamat Email') !!}
+    {!! form()->select('category', $categories)->label('Kategori') !!}
     {!! form()->textarea('message')->label('Pesan') !!}
     {!! form()->submit('Kirim') !!}
     {!! form()->close() !!}

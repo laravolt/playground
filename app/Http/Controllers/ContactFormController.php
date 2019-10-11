@@ -10,7 +10,10 @@ class ContactFormController extends Controller
 {
     public function create()
     {
-        return view('contact-form.create');
+        $categories = ['Kerusakan Fasilitas Umum', 'Pungutan Liar', 'Pelayanan Publik'];
+        $categories = array_combine($categories, $categories);
+
+        return view('contact-form.create', compact('categories'));
     }
 
     public function store(\App\Http\Requests\ContactForm\Store $request)
