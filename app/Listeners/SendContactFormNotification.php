@@ -6,6 +6,7 @@ use App\Events\ContactFormSubmitted;
 use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Notification;
 
 class SendContactFormNotification
 {
@@ -27,7 +28,13 @@ class SendContactFormNotification
      */
     public function handle(ContactFormSubmitted $event)
     {
+        $notification = new \App\Notifications\ContactFormSubmitted($event->contactForm);
+
+        // 1. Kirim ke admin
         $admin = User::first();
-        $admin->notify(new \App\Notifications\ContactFormSubmitted($event->contactForm));
+        $admin->notify($notification);
+
+        // 2. Kirim ke email yang bsersangkutan
+        Notification::route('mail', $event->contactForm->email)->notify($notification);
     }
 }
