@@ -3,6 +3,7 @@
 namespace App\Http\Requests\ContactForm;
 
 use App\Rules\MinimumWords;
+use App\Rules\ValidateEmailAddress;
 use Illuminate\Foundation\Http\FormRequest;
 
 class Store extends FormRequest
@@ -26,7 +27,7 @@ class Store extends FormRequest
     {
         return [
             'name' => ['required', new MinimumWords(2)],
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', new ValidateEmailAddress()],
             'message' => ['required', 'min:20'],
         ];
     }
